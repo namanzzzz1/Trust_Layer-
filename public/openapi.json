@@ -1,0 +1,192 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "TrustLayer Prediction API",
+    "version": "2.0.0",
+    "description": "Private, stateless research API. Access is controlled by Sites sign-in. PaySim is synthetic mobile-money data, not real UPI. No bank connection or payment execution. Maximum JSON body 150 KB."
+  },
+  "servers": [
+    {
+      "url": "/"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "summary": "Service health",
+        "responses": {
+          "200": {
+            "description": "JSON response"
+          }
+        }
+      }
+    },
+    "/api/model": {
+      "get": {
+        "summary": "Model provenance and held-out evaluation",
+        "responses": {
+          "200": {
+            "description": "JSON response"
+          }
+        }
+      }
+    },
+    "/api/openapi.json": {
+      "get": {
+        "summary": "OpenAPI description",
+        "responses": {
+          "200": {
+            "description": "JSON response"
+          }
+        }
+      }
+    },
+    "/api/predict": {
+      "post": {
+        "summary": "Score one transaction",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Transaction"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Predictions with model version; no payment execution"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "403": {
+            "description": "Cross-origin request rejected"
+          },
+          "405": {
+            "description": "Unsupported method"
+          }
+        }
+      }
+    },
+    "/api/predict/batch": {
+      "post": {
+        "summary": "Score a batch",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "transactions"
+                ],
+                "properties": {
+                  "transactions": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 200,
+                    "items": {
+                      "$ref": "#/components/schemas/Transaction"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Predictions with model version; no payment execution"
+          },
+          "400": {
+            "description": "Invalid input"
+          },
+          "403": {
+            "description": "Cross-origin request rejected"
+          },
+          "405": {
+            "description": "Unsupported method"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Transaction": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "amount",
+          "type",
+          "hour"
+        ],
+        "properties": {
+          "transaction_id": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,80}$"
+          },
+          "amount": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1000000000
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CASH_IN",
+              "CASH_OUT",
+              "DEBIT",
+              "PAYMENT",
+              "TRANSFER"
+            ]
+          },
+          "hour": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 23
+          }
+        }
+      },
+      "Prediction": {
+        "type": "object",
+        "properties": {
+          "transaction_id": {
+            "type": "string"
+          },
+          "fraud_score": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "action": {
+            "type": "string",
+            "enum": [
+              "Low risk",
+              "Review",
+              "Review urgently"
+            ]
+          },
+          "model_id": {
+            "type": "string"
+          },
+          "payment_action_executed": {
+            "type": "boolean",
+            "enum": [
+              false
+            ]
+          },
+          "warnings": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

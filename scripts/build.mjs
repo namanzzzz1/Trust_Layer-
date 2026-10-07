@@ -1,0 +1,7 @@
+import {sourceZip} from './archive.mjs';
+import fs from 'node:fs';import path from 'node:path';
+const artifact=JSON.parse(fs.readFileSync('models/paysim.json','utf8')),examples=JSON.parse(fs.readFileSync('models/examples.json','utf8'));
+const assets={};for(const f of fs.readdirSync('public'))if(fs.statSync(path.join('public',f)).isFile())assets['/'+f]={body:fs.readFileSync(path.join('public',f),'utf8'),type:f.endsWith('.html')?'text/html; charset=utf-8':f.endsWith('.css')?'text/css; charset=utf-8':f.endsWith('.json')?'application/json':'application/javascript; charset=utf-8'};
+assets['/trustlayer-project.zip']={body:sourceZip().toString('base64'),type:'application/zip',binary:true};
+const inference=fs.readFileSync('worker/inference.mjs','utf8').replaceAll('export function','function');const server=fs.readFileSync('worker/server.mjs','utf8');
+fs.rmSync('dist',{recursive:true,force:true});fs.mkdirSync('dist/server',{recursive:true});fs.mkdirSync('dist/.openai',{recursive:true});fs.writeFileSync('dist/server/index.js','const artifact='+JSON.stringify(artifact)+';\nconst examples='+JSON.stringify(examples)+';\nconst assets='+JSON.stringify(assets)+';\n'+inference+'\n'+server);fs.writeFileSync('dist/.openai/hosting.json',fs.existsSync('.openai/hosting.json')?fs.readFileSync('.openai/hosting.json'):'{}');console.log('Built Worker with '+Object.keys(assets).length+' assets and '+artifact.metadata.model_id);

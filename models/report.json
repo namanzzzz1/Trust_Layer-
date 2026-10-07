@@ -1,0 +1,172 @@
+{
+  "model_id": "paysim-v1-f7eef9ffad",
+  "selected_model": "Gradient boosting \u00b7 15 leaves",
+  "trained_at": "2026-10-07T07:52:33.979476+00:00",
+  "dataset": {
+    "title": "PaySim",
+    "url": "https://www.kaggle.com/datasets/ealaxi/paysim1",
+    "license": "CC BY-SA 4.0",
+    "synthetic": true,
+    "upi_data": false,
+    "sha256": "f7eef9ffad5cfa64a034143a5c9b30491d189420b273d5ad5723ca40b596613d",
+    "source_rows": 6362620,
+    "source_fraud": 8213,
+    "sample_rate": 1.0,
+    "sample_rows": 6362620,
+    "seed": 42
+  },
+  "features": [
+    "log_amount",
+    "hour_sin",
+    "hour_cos",
+    "type_CASH_IN",
+    "type_CASH_OUT",
+    "type_DEBIT",
+    "type_PAYMENT",
+    "type_TRANSFER"
+  ],
+  "excluded": [
+    "oldbalanceOrg",
+    "newbalanceOrig",
+    "oldbalanceDest",
+    "newbalanceDest",
+    "isFlaggedFraud",
+    "nameOrig",
+    "nameDest",
+    "absolute step"
+  ],
+  "protocol": "Chronological step-separated 60/15/10/15 split; candidate selection on validation AP; selected candidate refit on train+validation; thresholds on calibration negatives; final test untouched. No SMOTE. Random row sampling independent of labels.",
+  "boundaries": [
+    281,
+    335,
+    378
+  ],
+  "splits": [
+    {
+      "name": "train",
+      "rows": 3820599,
+      "fraud": 3193,
+      "step_min": 1,
+      "step_max": 281
+    },
+    {
+      "name": "validation",
+      "rows": 961244,
+      "fraud": 556,
+      "step_min": 282,
+      "step_max": 335
+    },
+    {
+      "name": "calibration",
+      "rows": 662160,
+      "fraud": 458,
+      "step_min": 336,
+      "step_max": 378
+    },
+    {
+      "name": "test",
+      "rows": 918617,
+      "fraud": 4006,
+      "step_min": 379,
+      "step_max": 743
+    }
+  ],
+  "candidates": [
+    {
+      "name": "Logistic regression",
+      "validation": {
+        "average_precision": 0.032307565447953726,
+        "roc_auc": 0.9049644929227579,
+        "recall_at_1pct_fpr": 0.36330935251798563,
+        "rows": 961244,
+        "fraud_count": 556,
+        "fraud_rate": 0.000578417134463258
+      },
+      "training_seconds": 2.15
+    },
+    {
+      "name": "Gradient boosting \u00b7 15 leaves",
+      "validation": {
+        "average_precision": 0.33697070403680945,
+        "roc_auc": 0.9492483736475671,
+        "recall_at_1pct_fpr": 0.48201438848920863,
+        "rows": 961244,
+        "fraud_count": 556,
+        "fraud_rate": 0.000578417134463258
+      },
+      "training_seconds": 16.24
+    },
+    {
+      "name": "Gradient boosting \u00b7 31 leaves",
+      "validation": {
+        "average_precision": 0.333174059430442,
+        "roc_auc": 0.9482472747423698,
+        "recall_at_1pct_fpr": 0.4658273381294964,
+        "rows": 961244,
+        "fraud_count": 556,
+        "fraud_rate": 0.000578417134463258
+      },
+      "training_seconds": 22.03
+    },
+    {
+      "name": "Weighted gradient boosting",
+      "validation": {
+        "average_precision": 0.3330827591252282,
+        "roc_auc": 0.9481309743230183,
+        "recall_at_1pct_fpr": 0.49280575539568344,
+        "rows": 961244,
+        "fraud_count": 556,
+        "fraud_rate": 0.000578417134463258
+      },
+      "training_seconds": 15.47
+    }
+  ],
+  "thresholds": {
+    "review": 0.007054845970166487,
+    "block": 0.027823731571280146,
+    "calibration_review_fpr": 0.009953120891277343,
+    "calibration_block_fpr": 0.0009974278451629283
+  },
+  "test": {
+    "average_precision": 0.42402217663086933,
+    "roc_auc": 0.9529401463460591,
+    "recall_at_1pct_fpr": 0.5404393409885172,
+    "rows": 918617,
+    "fraud_count": 4006,
+    "fraud_rate": 0.004360903401526425,
+    "precision": 0.1631609278201988,
+    "recall": 0.5654018971542686,
+    "false_positive_rate": 0.012701574767852126,
+    "confusion_matrix": {
+      "tn": 902994,
+      "fp": 11617,
+      "fn": 1741,
+      "tp": 2265
+    }
+  },
+  "test_block": {
+    "average_precision": 0.42402217663086933,
+    "roc_auc": 0.9529401463460591,
+    "recall_at_1pct_fpr": 0.5404393409885172,
+    "rows": 918617,
+    "fraud_count": 4006,
+    "fraud_rate": 0.004360903401526425,
+    "precision": 0.4083167440831674,
+    "recall": 0.46080878681977033,
+    "false_positive_rate": 0.002924740682104195,
+    "confusion_matrix": {
+      "tn": 911936,
+      "fp": 2675,
+      "fn": 2160,
+      "tp": 1846
+    }
+  },
+  "sklearn_version": "1.8.0",
+  "limitations": [
+    "Synthetic African mobile-money benchmark, not UPI or real bank data.",
+    "Fraud labels represent simulated account takeover, not coerced payments.",
+    "Only amount, transaction type and cyclic hour are used; weak signal and simulator artifacts limit generalization.",
+    "Threshold false-positive targets apply to calibration data; later data may shift.",
+    "No raw balances, identities, post-transaction fields or fraud flags are prediction inputs."
+  ]
+}
